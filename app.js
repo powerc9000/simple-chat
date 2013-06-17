@@ -28,7 +28,7 @@ socket.sockets.on("connection", function(s){
 	s.on("message", function(message){
 		s.get("username", function(err, username){
 			socket.sockets.emit("message", username, message);
-		})
+		})//comment
 		
 	});
 	s.on("username", function(username){
