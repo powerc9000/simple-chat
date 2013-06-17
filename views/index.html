@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Chat!</title>
+		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="/css/style.css">
+		<script src="/socket.io/socket.io.js"></script>
+
+	</head>
+	<body>
+		<div class="container">
+			<div class="chatArea" style="display:none">
+				<h3>Messages</h3>
+				<div class="messages" id="messagebox">
+				</div>
+				<form  id="messageform" class="well">
+					<input type="text" name="message">
+					<input type="submit" value="Send Message" class="btn btn-primary">
+				</form>
+			</div>
+			<div class="username">
+				<h1>First we need a username</h1>
+				<form id="username">
+					<input type="text" name="username">
+					<input type="submit" value="Set Username" class="btn btn-primary">
+				</form>
+			</div>
+		</div>
+		
+		
+		<script>
+			(function(){
+				var socket = io.connect();
+				var form = document.getElementById("messageform");
+				var usernameForm = document.getElementById("username");
+
+				
+				usernameForm.addEventListener("submit", setUsername, false);
+				form.addEventListener("submit", sendMessage, false);
+
+				socket.on("message", handleMessage);
+
+				function handleMessage(username, message){
+					var box = document.getElementById("messagebox"),
+						messagearea = createElement("<p class='message'></p>");
+					if(message){
+						messagearea.textContent = username + ": " + message;
+					}
+					else{
+						messagearea.textContent = username;
+						messagearea.classList.add('system-message');
+
+					}
+					messagearea.style.visibility = "hidden";
+					messagearea = box.appendChild(messagearea);
+					setTimeout(function(){
+						scrollbot();
+						messagearea.style.visibility = "visible";
+					}, 0)
+				}
+
+				function sendMessage(e){
+					var message = form.message.value;
+					socket.emit("message", message);
+					form.message.value = "";
+					e.preventDefault();
+				}
+
+				function setUsername(e){
+					var chat = document.getElementsByClassName("chatArea")[0];
+					var formContain = document.getElementsByClassName("username")[0];
+					chat.style.display = "block";
+					formContain.style.display = "none";
+					socket.emit("username", usernameForm.username.value);
+					e.preventDefault();
+				}
+
+				function createElement(text){
+					var holder = document.createElement("div"),
+					frag = document.createDocumentFragment();
+					holder.innerHTML = text;
+					while(holder.firstChild){
+						frag.appendChild(holder.firstChild);
+					}
+					return frag.firstChild;
+				}
+
+				function scrollbot(){
+					var d = document.getElementById('messagebox');
+
+					if(d.scrollHeight > d.clientHeight) {
+					  d.scrollTop = d.scrollHeight - d.clientHeight;
+					}
+				}
+			}())
+			
+		</script>
+	</body>
+</html>
