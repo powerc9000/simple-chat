@@ -6,17 +6,17 @@ var express = require("express"),
 
 
 app.configure(function(){
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'ejs');
-  app.engine("html", require("ejs").renderFile);
-  app.set("view options", {layout:false});
-  app.use(express.static(__dirname + "/public"));
-  app.use(express.favicon());
-  app.use(express.bodyParser());
+	app.set('views', __dirname + '/views');
+	app.set('view engine', 'ejs');
+	app.engine("html", require("ejs").renderFile);
+	app.set("view options", {layout:false});
+	app.use(express.static(__dirname + "/public"));
+	app.use(express.favicon());
+	app.use(express.bodyParser());
 
-  // app.use(express.cookieParser(config.sessionSecret));  
-  // app.use(express.session({store: new RedisStore()}));
-  app.use(flash());
+	// app.use(express.cookieParser(config.sessionSecret));  
+	// app.use(express.session({store: new RedisStore()}));
+	app.use(flash());
 });
 //test
 server.listen(3000);

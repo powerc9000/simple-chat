@@ -39,16 +39,24 @@
 				var socket = io.connect();
 				var form = document.getElementById("messageform");
 				var usernameForm = document.getElementById("username");
-
-				
+				var focused = true;
+				var missMessage = 0;
 				usernameForm.addEventListener("submit", setUsername, false);
 				form.addEventListener("submit", sendMessage, false);
+				window.addEventListener("focus", onfocus);
+				window.addEventListener("blur", onblur);
 
 				socket.on("message", handleMessage);
 				socket.on("online", usersOnline);
 				function handleMessage(username, message){
 					var box = document.getElementById("messagebox"),
-						messagearea = createElement("<p class='message'></p>");
+						messagearea = createElement("<p class='message'></p>"),
+						title;
+					if(!focused){
+						missMessage++;
+						title = window.document.title;
+						window.document.title = "("+missMessage+") Chat!";
+					}
 					if(message){
 						messagearea.textContent = username + ": " + message;
 					}
@@ -107,6 +115,16 @@
 						var item = createElement("<li>"+u+"</li>");
 						list.appendChild(item);
 					});
+				}
+
+				function onfocus(){
+					focused = true;
+					window.document.title = "Chat!"
+					missMessage = 0;
+				}
+
+				function onblur(){
+					focused = false;
 				}
 			}())
 			
