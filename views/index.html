@@ -9,19 +9,25 @@
 	</head>
 	<body>
 		<div class="container">
-			<div class="chatArea" style="display:none">
-				<h3>Messages</h3>
-				<div class="messages" id="messagebox">
+			<div class="chatArea row" style="display:none">
+				<div class="span8">
+					<h3>Messages</h3>
+					<div class="messages" id="messagebox">
+					</div>
+					<form  id="messageform" class="well row">
+						<input type="text" name="message" class="span8">
+						<input type="submit" value="Send Message" class="btn btn-primary pull-right">
+					</form>
 				</div>
-				<form  id="messageform" class="well">
-					<input type="text" name="message">
-					<input type="submit" value="Send Message" class="btn btn-primary">
-				</form>
+				<div class="span4">
+					<h1>People online</h1>
+					<ul class="online unstyled"></ul>
+				</div>
 			</div>
 			<div class="username">
 				<h1>First we need a username</h1>
 				<form id="username">
-					<input type="text" name="username">
+					<input type="text" name="username" >
 					<input type="submit" value="Set Username" class="btn btn-primary">
 				</form>
 			</div>
@@ -39,7 +45,7 @@
 				form.addEventListener("submit", sendMessage, false);
 
 				socket.on("message", handleMessage);
-
+				socket.on("online", usersOnline);
 				function handleMessage(username, message){
 					var box = document.getElementById("messagebox"),
 						messagearea = createElement("<p class='message'></p>");
@@ -91,6 +97,16 @@
 					if(d.scrollHeight > d.clientHeight) {
 					  d.scrollTop = d.scrollHeight - d.clientHeight;
 					}
+				}
+
+				function usersOnline(users){
+					console.log(users)
+					var list = document.getElementsByClassName("online")[0];
+					list.innerHTML = "";
+					users.forEach(function(u){
+						var item = createElement("<li>"+u+"</li>");
+						list.appendChild(item);
+					});
 				}
 			}())
 			
