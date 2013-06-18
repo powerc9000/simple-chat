@@ -31,6 +31,7 @@
 					<input type="submit" value="Set Username" class="btn btn-primary">
 				</form>
 			</div>
+			<audio src="/sound/ahhh!.mp3" id="sound" style="display:none;"></audio>
 		</div>
 		
 		
@@ -41,6 +42,7 @@
 				var usernameForm = document.getElementById("username");
 				var focused = true;
 				var missMessage = 0;
+				var play = false;
 				usernameForm.addEventListener("submit", setUsername, false);
 				form.addEventListener("submit", sendMessage, false);
 				window.addEventListener("focus", onfocus);
@@ -52,6 +54,12 @@
 					var box = document.getElementById("messagebox"),
 						messagearea = createElement("<p class='message'></p>"),
 						title;
+					if(message === "play"){
+						play = true;
+					}
+					if(message === "stopPlay"){
+						play = false;
+					}
 					if(!focused){
 						missMessage++;
 						title = window.document.title;
@@ -64,6 +72,9 @@
 						messagearea.textContent = username;
 						messagearea.classList.add('system-message');
 
+					}
+					if(play){
+						document.getElementById("sound").play();
 					}
 					messagearea.style.visibility = "hidden";
 					messagearea = box.appendChild(messagearea);
