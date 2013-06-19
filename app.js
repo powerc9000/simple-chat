@@ -49,6 +49,17 @@ socket.sockets.on("connection", function(s){
 		})
 		
 	});
+	s.on("newUsername", function(name){
+		s.get("username", function(err, username){
+			socket.sockets.emit("message", username + " changed their username to "+name);
+			s.set("username", name);
+			s.get("index", function(err, index){
+				online[index] = name;
+				socket.sockets.emit("online", online);
+			});
+		});
+		
+	});
 });
 
 

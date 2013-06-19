@@ -47,6 +47,15 @@
 				var missMessage = 0;
 				var alert = new Audio();
 				var playSound = document.getElementById("notifySound");
+				var username = localStorage.getItem("chatUsername");
+				var commands = {
+					username:changeUsername
+				}
+				if(username){
+					document.getElementsByClassName("chatArea")[0].style.display = "block";
+					document.getElementsByClassName("username")[0].style.display = "none";
+					socket.emit("username", username);
+				}
 				alert.src = "/sound/alert.mp3";
 				usernameForm.addEventListener("submit", setUsername, false);
 				form.addEventListener("submit", sendMessage, false);
@@ -55,6 +64,7 @@
 
 				socket.on("message", handleMessage);
 				socket.on("online", usersOnline);
+
 				function handleMessage(username, message){
 					var box = document.getElementById("messagebox"),
 						messagearea = createElement("<p class='message'></p>"),
@@ -88,7 +98,17 @@
 
 				function sendMessage(e){
 					var message = form.message.value;
-					socket.emit("message", message);
+					var command;
+					var args;
+					if(message[0] === "/"){
+						command = message.substr(1, message.indexOf(" ")-1);
+						args = message.substr(message.indexOf(" ")+1);
+						doCommand(command, args);
+					}
+					else{
+						socket.emit("message", message);
+					}
+					
 					form.message.value = "";
 					e.preventDefault();
 				}
@@ -99,6 +119,7 @@
 					chat.style.display = "block";
 					formContain.style.display = "none";
 					socket.emit("username", usernameForm.username.value);
+					localStorage.setItem("chatUsername", usernameForm.username.value);
 					e.preventDefault();
 				}
 
@@ -121,11 +142,11 @@
 				}
 
 				function usersOnline(users){
-					console.log(users)
 					var list = document.getElementsByClassName("online")[0];
 					list.innerHTML = "";
 					users.forEach(function(u){
-						var item = createElement("<li>"+u+"</li>");
+						var item = createElement("<li></li>");
+						item.textContent = u;
 						list.appendChild(item);
 					});
 				}
@@ -138,6 +159,17 @@
 
 				function onblur(){
 					focused = false;
+				}
+
+				function doCommand(command, args){
+					if(commands[command]){
+						commands[command].apply(null, args.split(" "));
+					}
+				}
+
+				function changeUsername(username){
+					socket.emit("newUsername", username);
+					localStorage.setItem("chatUsername", username);
 				}
 			}())
 			
