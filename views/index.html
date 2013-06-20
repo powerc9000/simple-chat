@@ -64,11 +64,20 @@
 
 				socket.on("message", handleMessage);
 				socket.on("online", usersOnline);
+				socket.on("messages", handleArchive);
+
+				function handleArchive(messages){
+					
+					messages.forEach(function(m){
+						appendMessage(m.username, m.message);
+					})
+
+					//messages = JSON.parse(messages);
+				}
 
 				function handleMessage(username, message){
-					var box = document.getElementById("messagebox"),
-						messagearea = createElement("<p class='message'></p>"),
-						title;
+					var title;
+
 					if(!focused){
 						missMessage++;
 						title = window.document.title;
@@ -79,6 +88,12 @@
 							alert.play();
 						}
 					}
+					appendMessage(username, message);
+				}
+
+				function appendMessage(username, message){
+					var box = document.getElementById("messagebox"),
+						messagearea = createElement("<p class='message'></p>");
 					if(message){
 						messagearea.textContent = username + ": " + message;
 					}
@@ -95,7 +110,6 @@
 						messagearea.style.visibility = "visible";
 					}, 0)
 				}
-
 				function sendMessage(e){
 					var message = form.message.value;
 					var command;

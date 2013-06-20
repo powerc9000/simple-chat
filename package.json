@@ -1,5 +1,5 @@
 {
-  "name": "Simple Chat",
+  "name": "simple-chat",
   "version": "0.0.0",
   "description": "ERROR: No README.md file found!",
   "main": "app.js",
@@ -7,7 +7,10 @@
     "connect-flash": "~0.1.1",
     "ejs": "~0.8.4",
     "express": "~3.2.6",
-    "socket.io": "~0.9.16"
+    "socket.io": "~0.9.16",
+    "connect-redis": "~1.4.5",
+    "redis": "~0.8.3",
+    "hiredis": "~0.1.15"
   },
   "devDependencies": {},
   "scripts": {
