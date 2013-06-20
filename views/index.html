@@ -116,7 +116,8 @@
 					var command;
 					var args;
 					if(!message){
-						return;
+						e.preventDefault();
+						return false;
 					}
 					if(message[0] === "/"){
 						command = message.substr(1, message.indexOf(" ")-1);
