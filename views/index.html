@@ -67,7 +67,8 @@
 				socket.on("messages", handleArchive);
 
 				function handleArchive(messages){
-					
+					var box = document.getElementById("messagebox");
+					box.innerHTML = "";
 					messages.forEach(function(m){
 						appendMessage(m.username, m.message);
 					})
@@ -111,9 +112,12 @@
 					}, 0)
 				}
 				function sendMessage(e){
-					var message = form.message.value;
+					var message = form.message.value.trim();
 					var command;
 					var args;
+					if(!message){
+						return;
+					}
 					if(message[0] === "/"){
 						command = message.substr(1, message.indexOf(" ")-1);
 						args = message.substr(message.indexOf(" ")+1);
