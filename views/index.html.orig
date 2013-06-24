@@ -37,12 +37,15 @@
 					<h3>Messages</h3>
 					<div class="messages" id="messagebox">
 					</div>
-				<input type="submit" value="Send Message" class="btn btn-primary pull-right"> 
-
+<<<<<<< HEAD
+					<form  id="messageform" class="well row">
+						<input type="text" name="message" class="span8" autocomplete='off'>
+						<input type="submit" value="Send Message" class="btn btn-primary pull-right"> 
+=======
 					<form id="messageform" class="well row">
 						<input type="text" name="message" class="span8">
 						<input type="submit" value="Send Message" class="btn btn-primary pull-right">
-
+>>>>>>> 03b765557658cc36f6e065d3f90785a387bfd32b
 					</form>
 					<div class="row-fluid">
 						<input type="checkbox" id="notifySound" checked> Play notification sound	
