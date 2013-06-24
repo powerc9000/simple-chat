@@ -37,7 +37,6 @@
 					<h3>Messages</h3>
 					<div class="messages" id="messagebox">
 					</div>
-				<input type="submit" value="Send Message" class="btn btn-primary pull-right"> 
 
 					<form id="messageform" class="well row">
 						<input type="text" name="message" class="span8">
@@ -93,19 +92,11 @@
 				socket.on("image", handleImage);
 
 				function handleArchive(messages){
-<<<<<<< HEAD
-					var box = document.getElementById("messagebox");
-					box.innerHTML = "";
-					messages.forEach(function(m){
-						appendMessage(m.username, m.message);
-					})
 
-					//messages = JSON.parse(messages);
-=======
 					for(var i=messages.length-1; i>=0; i--){
 						appendMessage(messages[i].username, messages[i].message);
 					}
->>>>>>> 03b765557658cc36f6e065d3f90785a387bfd32b
+
 				}
 
 				function handleMessage(username, message){
