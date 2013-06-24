@@ -11,3 +11,12 @@
 .chatArea{
 
 }
+canvas{
+	border:1px black solid;
+}
+.colors li{
+	width:20px;
+	height:20px;
+	border:1px black solid;
+	list-style-type:none;
+}

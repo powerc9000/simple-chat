@@ -28,20 +28,28 @@ app.get("/", function(req, res){
 (function(socket, client){
 	var online = [];
 	socket.sockets.on("connection", function(s){
-		client.lrange("messages", 0,50, function(err, list){
+		
+		client.lrange("messages", 0, 50, function(err, list){
+			console.log(err, list, "hi")
 			var li = [];
 			list.forEach(function(l){
 				li.push(JSON.parse(l));
 			})
 			s.emit("messages", li);
 		});
+		
 		//s.emit("messages", )
 		s.on("message", function(message){
 			s.get("username", function(err, username){
 				socket.sockets.emit("message", username, message);
-				client.rpush("messages", JSON.stringify({"username":username, "message":message, time:(+new Date())}))
+				client.lpush("messages", JSON.stringify({"username":username, "message":message, time:(+new Date())}))
 			})//commentcomment
 			
+		});
+		s.on("image", function(image){
+			s.get("username", function(err, username){
+				socket.sockets.emit("image", username, image);
+			})
 		});
 		s.on("username", function(username){
 			var idx = online.push(username) -1;

@@ -10,22 +10,44 @@
 	<body>
 		<div class="container">
 			<div class="chatArea row-fluid" style="display:none">
-				<div class="span8">
+				<div class="span4">
+					<h1>Send a picture</h1>
+					<div class="row-fluid">
+						<div class="span10">
+							<canvas id="canvas"></canvas>
+							<button id="save" class="btn">Send</button>
+							<button id="clear" class="btn">clear</button>
+						</div>
+						<div class="span2">
+							<ul class="colors unstyled">
+								<li class="red" style="background-color:#ff0000"></li>
+								<li class="purple" style="background-color:#bb00bb"></li>
+								<li class="blue" style="background-color:#0000ff"></li>
+								<li class="green" style="background-color:#00ff00"></li>
+								<li class="yellow" style="background-color:#ffff00"></li>
+								<li class="black" style="background-color:#000000; border: 3px black solid;"></li>
+								<li class="white" style="background-color:#ffffff"></li>
+							</ul>
+						</div>
+						
+						
+					</div>
+				</div>
+				<div class="span6">
 					<h3>Messages</h3>
 					<div class="messages" id="messagebox">
 					</div>
-					<form  id="messageform" class="well row">
+					<form id="messageform" class="well row">
 						<input type="text" name="message" class="span8">
 						<input type="submit" value="Send Message" class="btn btn-primary pull-right">
 					</form>
+					<div class="row-fluid">
+						<input type="checkbox" id="notifySound" checked> Play notification sound	
+					</div>
 				</div>
-				<div class="span4">
-					<h1>People online</h1>
+				<div class="span2">
+					<h3>People online</h3>
 					<ul class="online unstyled"></ul>
-				</div>
-				<div class="clearfix"></div>
-				<div class="row-fluid">
-					<input type="checkbox" id="notifySound" checked> Play notification sound	
 				</div>
 			</div>
 			<div class="username">
@@ -39,8 +61,8 @@
 		
 		
 		<script>
-			(function(){
-				var socket = io.connect();
+			var socket = io.connect();
+			(function(socket){
 				var form = document.getElementById("messageform");
 				var usernameForm = document.getElementById("username");
 				var focused = true;
@@ -65,14 +87,12 @@
 				socket.on("message", handleMessage);
 				socket.on("online", usersOnline);
 				socket.on("messages", handleArchive);
+				socket.on("image", handleImage);
 
 				function handleArchive(messages){
-					
-					messages.forEach(function(m){
-						appendMessage(m.username, m.message);
-					})
-
-					//messages = JSON.parse(messages);
+					for(var i=messages.length-1; i>=0; i--){
+						appendMessage(messages[i].username, messages[i].message);
+					}
 				}
 
 				function handleMessage(username, message){
@@ -90,7 +110,23 @@
 					}
 					appendMessage(username, message);
 				}
-
+				function handleImage(username, img){
+					var box = document.getElementById("messagebox"),
+						image = createElement("<img>"),
+						messagearea = createElement("<p class='message'></p>");
+						messagearea.textContent = username + ": ";
+						image.src = img;
+						messagearea.style.visibility = "hidden";
+						messagearea = box.appendChild(messagearea);
+						image.style.visibility = "hidden";
+						image = box.appendChild(image);
+						
+						setTimeout(function(){
+							scrollbot();
+							image.style.visibility = "visible";
+							messagearea.style.visibility = "visible";
+						}, 0)
+				}
 				function appendMessage(username, message){
 					var box = document.getElementById("messagebox"),
 						messagearea = createElement("<p class='message'></p>");
@@ -151,7 +187,7 @@
 					var d = document.getElementById('messagebox');
 
 					if(d.scrollHeight > d.clientHeight) {
-					  d.scrollTop = d.scrollHeight - d.clientHeight;
+					d.scrollTop = d.scrollHeight - d.clientHeight;
 					}
 				}
 
@@ -185,8 +221,98 @@
 					socket.emit("newUsername", username);
 					localStorage.setItem("chatUsername", username);
 				}
-			}())
-			
+			}(socket));
+
+
+			(function(socket){
+				var canvas = document.getElementById("canvas");
+				var save = document.getElementById("save");
+				var ctx = canvas.getContext("2d");
+				var mousedown = false;
+				var colors = document.getElementsByClassName("colors")[0].children;
+				var color = "black";
+				var clear = document.getElementById("clear");
+				var shift = false;
+				var click = {};
+				clear.addEventListener("click", function(){
+					 var c = confirm("really clear?");
+					 if(c){
+							ctx.clearRect(0,0,canvas.width,canvas.height);	
+					 }
+				});
+				window.addEventListener("keydown", function(e){
+				shift = (e.keyCode == 16); 
+					console.log(shift);
+				});
+				window.addEventListener("keyup", function(e){
+					 if(e.keyCode == 16){
+						shift = false;	
+					 }
+				});
+				save.addEventListener("click", function(){
+					socket.emit("image", canvas.toDataURL("img/png"));
+					ctx.clearRect(0,0,canvas.width,canvas.height);	
+				});
+				[].forEach.call(colors, function(c){
+					 c.addEventListener("click", function(e){
+
+						 removeBorders();
+						 c.style.border = "3px black solid";
+						
+						 color = c.style["background-color"];
+						
+					 })
+				});
+				canvas.width = 250;
+				canvas.height = 250;
+				previous = {};
+				canvas.onmousedown = function(e){
+					click.x = e.offsetX;
+					click.y = e.offsetY;
+					mousedown = true;	
+					return false;
+				}
+				canvas.onmouseup = function(e){
+					mousedown = false;
+					return false;
+				}
+				canvas.onmousemove = function(e){
+				
+					 
+					 if(mousedown){
+						if(previous.x && previous.y){
+								 ctx.strokeStyle = color;
+								 ctx.lineWidth = 5;
+								 ctx.beginPath();
+								 ctx.moveTo(previous.x, previous.y);
+								 ctx.lineTo(e.offsetX, e.offsetY);
+								 ctx.stroke();	
+						}
+						if(!shift){
+								 previous.x = e.offsetX;
+								 previous.y = e.offsetY;
+						}
+						else{
+								previous.x = click.x;
+								previous.y = click.y;
+						}
+						 
+					 } 
+					 else{
+						previous.x = false;
+						previous.y = false;
+					 }
+						 
+					 
+					 
+					 return false;
+				}
+				function removeBorders(){
+					 [].forEach.call(colors, function(c){
+						c.style.border = "1px black solid";
+					 });
+				}
+			}(socket));
 		</script>
 	</body>
 </html>
