@@ -5,10 +5,16 @@
 		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
 		<link rel="stylesheet" href="/css/style.css">
 		<script src="/socket.io/socket.io.js"></script>
+		
 
 	</head>
 	<body>
 		<div class="container">
+			<div class="video">
+				<canvas id="videoCanvas"></canvas>
+				<video src=""></video>
+				<button id="shareVideo">Share Video</button>
+			</div>
 			<div class="chatArea row-fluid" style="display:none">
 				<div class="span4">
 					<h1>Send a picture</h1>
@@ -322,5 +328,6 @@
 				}
 			}(socket));
 		</script>
+		<script src="/js/video.js"></script>
 	</body>
 </html>

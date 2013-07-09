@@ -68,6 +68,9 @@ app.get("/", function(req, res){
 			})
 			
 		});
+		s.on("video", function(frame){
+			socket.sockets.emit("video", frame);
+		})
 		s.on("newUsername", function(name){
 			s.get("username", function(err, username){
 				socket.sockets.emit("message", username + " changed their username to "+name);
