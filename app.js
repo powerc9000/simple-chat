@@ -27,6 +27,7 @@ app.get("/", function(req, res){
 });
 (function(socket, client){
 	var online = [];
+	socket.set('log level', 1);
 	socket.sockets.on("connection", function(s){
 		
 		client.lrange("messages", 0, 50, function(err, list){
@@ -69,7 +70,9 @@ app.get("/", function(req, res){
 			
 		});
 		s.on("video", function(frame){
-			socket.sockets.emit("video", frame);
+			s.get("username", function(err, username){
+				s.broadcast.emit("video", frame, username);
+			});
 		})
 		s.on("newUsername", function(name){
 			s.get("username", function(err, username){

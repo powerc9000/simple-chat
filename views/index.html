@@ -271,16 +271,16 @@
 					 c.addEventListener("click", function(e){
 
 						 removeBorders();
-						 c.style.border = "3px black solid";
-						
-						 color = c.style["background-color"];
-						
+						 this.style.border = "3px black solid";
+						 color = this.style.getPropertyValue("background-color");
+						console.log(color)
 					 })
 				});
 				canvas.width = 250;
 				canvas.height = 250;
 				previous = {};
 				canvas.onmousedown = function(e){
+					e = fixEvent(e);
 					click.x = e.offsetX;
 					click.y = e.offsetY;
 					mousedown = true;	
@@ -291,8 +291,7 @@
 					return false;
 				}
 				canvas.onmousemove = function(e){
-				
-					 
+					e = fixEvent(e);
 					 if(mousedown){
 						if(previous.x && previous.y){
 								 ctx.strokeStyle = color;
@@ -325,6 +324,13 @@
 					 [].forEach.call(colors, function(c){
 						c.style.border = "1px black solid";
 					 });
+				}
+				function fixEvent(e) {
+				    if(!e.hasOwnProperty('offsetX')) {
+				        e.offsetX = e.layerX - e.currentTarget.offsetLeft;
+				        e.offsetY = e.layerY - e.currentTarget.offsetTop;
+				    }
+				    return e;
 				}
 			}(socket));
 		</script>
