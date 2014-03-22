@@ -1,0 +1,41 @@
+<div class="chatArea row-fluid" style="display:none">
+	<div class="span4">
+		<h1>Send a picture</h1>
+		<div class="row-fluid">
+			<div class="span10">
+				<canvas id="canvas"></canvas>
+				<button id="save" class="btn">Send</button>
+				<button id="clear" class="btn">clear</button>
+			</div>
+			<div class="span2">
+				<ul class="colors unstyled">
+					<li class="red" style="background-color:#ff0000"></li>
+					<li class="purple" style="background-color:#bb00bb"></li>
+					<li class="blue" style="background-color:#0000ff"></li>
+					<li class="green" style="background-color:#00ff00"></li>
+					<li class="yellow" style="background-color:#ffff00"></li>
+					<li class="black" style="background-color:#000000; border: 3px black solid;"></li>
+					<li class="white" style="background-color:#ffffff"></li>
+				</ul>
+			</div>
+			
+			
+		</div>
+	</div>
+	<div class="span6">
+		<h3>Messages</h3>
+		<div class="messages" id="messagebox">
+		</div>
+		<form id="messageform" class="well row">
+			<input type="text" name="message" class="span8">
+			<input type="submit" value="Send Message" class="btn btn-primary pull-right">
+		</form>
+		<div class="row-fluid">
+			<input type="checkbox" id="notifySound" checked> Play notification sound	
+		</div>
+	</div>
+	<div class="span2">
+		<h3>People online</h3>
+		<ul class="online unstyled"></ul>
+	</div>
+</div>
