@@ -5,14 +5,14 @@
 		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
 		<link rel="stylesheet" href="/css/style.css">
 		<script src="/socket.io/socket.io.js"></script>
+
 		<script src="/js/loader.js"></script>
 		<script>
 			loader.runOnLoad(false);
 		</script>
 
-	</head>
-	<body>
-		<div class="container">
+		
+
 			<div id="load"></div>
 			<div class="chatArea row-fluid" style="display:none">
 				<div class="span4">
@@ -42,9 +42,11 @@
 					<h3>Messages</h3>
 					<div class="messages" id="messagebox">
 					</div>
+
 					<form id="messageform" class="well row">
 						<input type="text" name="message" class="span8">
 						<input type="submit" value="Send Message" class="btn btn-primary pull-right">
+
 					</form>
 					<div class="row-fluid">
 						<input type="checkbox" id="notifySound" checked> Play notification sound	
@@ -65,6 +67,7 @@
 		</div>
 		
 		
+
 		<script src="js/main.js"></script>
 	</body>
 </html>

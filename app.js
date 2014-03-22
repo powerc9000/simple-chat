@@ -26,8 +26,10 @@ app.get("/", function(req, res){
 	res.render("index.html");
 });
 (function(socket, client){
+
 	var online = {};
 	var privateOnline = {};
+
 	socket.sockets.on("connection", function(s){
 		s.set("index", online.length);
 		client.lrange("messages", 0, 50, function(err, list){
@@ -77,6 +79,11 @@ app.get("/", function(req, res){
 			
 			
 		});
+		s.on("video", function(frame){
+			s.get("username", function(err, username){
+				s.broadcast.emit("video", frame, username);
+			});
+		})
 		s.on("newUsername", function(name){
 			s.get("username", function(err, username){
 				if(online[name] && name !== username){
