@@ -5,7 +5,7 @@ Simple chat that you can use and improve if you want to.
 
 Set up
 --------
-First thing is first you need to have nodejs installed.
+Simple chat requires nodejs and redis to function
 
 This repo doesnt contain the node modules folder so you have to install those as well that's simple running
 `npm install` 
