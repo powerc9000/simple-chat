@@ -1,128 +1,106 @@
 (function(socket){
-	var sharing = false;
-	var video = document.querySelector('video');
-	var canvas = document.getElementById('videoCanvas');
-	var button = document.getElementById("shareVideo");
-	var ctx = canvas.getContext("2d");
-	var buffer = [];
-	var i = new Image();
-	var feeds = {};
-	var fps = 20;
-	var vc = document.getElementsByClassName("video")[0];
-	var username = localStorage.getItem("chatUsername");
-	var feeding = false;
-	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-	                             window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-	window.requestAnimationFrame = requestAnimationFrame;
-	video.width = 200;
-	video.style.visibility = "hidden";
-	video.style.position = "absolute";
-	navigator.getMedia = ( navigator.getUserMedia ||
-	                       navigator.webkitGetUserMedia ||
-	                       navigator.mozGetUserMedia ||
-	                       navigator.msGetUserMedia);
-	function init(){
-		navigator.getMedia (
+	// the socket handles sending messages between peer connections while they are in the 
+// process of connecting
+socket.on("assigned_id", function(id){
+	socket.id = id;
+});
 
-		   // constraints
-		   {
-		      video: true,
-		      audio: true
-		   },
-
-		   // successCallback
-		function(localMediaStream) {
-		    if(!sharing){
-				video.src = window.URL.createObjectURL(localMediaStream);
-		    	video.play()
-		    	video.addEventListener("loadedmetadata", function(){
-		    		canvas.width = this.clientWidth;
-		    		canvas.height = this.clientHeight;
-		    		if(!feeding){
-		    			requestAnimationFrame(draw);
-		    		}
-		    		
-		    	});
-		    	sharing = true;
-		    }
-		    
-			},
-
-		   // errorCallback
-		   function(err) {
-		    console.log("The following error occured: " + err);
-		   }
-
-		);
-	}
-	
-	button.addEventListener("click", init);
-	setInterval(function(){
-		if(feeding){
+socket.on("received_offer", function(data){
+	//pc = new RTCPeerConnection(configuration);
+	console.log('received offer');
+	pc.setRemoteDescription(new RTCSessionDescription(data), function(){
+		pc.createAnswer(function(description) {
+			console.log("are we getting here?")
+			console.log('sending answer');
+			socket.emit("recieved_answer", description);
+			pc.setLocalDescription(description); 
 			
-			socket.emit("video", canvas.toDataURL());
-		}
-		
-	}, 1000/24)
-	function draw(){
-	feeding = true;
-	  try{
-		ctx.drawImage(video, 0,0, canvas.width, canvas.height); 
-		
-	  }
-	  catch(e){
-	  	console.log("nope")
-	  }
-	  doOtherFeeds();
-	  
-	  requestAnimationFrame(draw);
-	}
-	socket.on("video", function(image, u){
-		if(!feeding){
-			requestAnimationFrame(draw);
-		}
-		if(u !== username){
-			if(buffer.length > 50){
-				buffer.length = 0;
-			}
-			else{
-				buffer.push({username:u, image:image});
-			}
-			
-		}
+		}, null, mediaConstraints);
 	});
+	
+});
 
-	function doOtherFeeds(){
-		if(buffer.length){
-			i.src = buffer[0].image;
-			if(!feeds[buffer[0].username]){
-				feeds[buffer[0].username] = {};
-				feeds[buffer[0].username].canvas = vc.appendChild(document.createElement("canvas"));
-				feeds[buffer[0].username].ctx = feeds[buffer[0].username].canvas.getContext("2d");
-				
-			}
-			i.onload = function(){
-				setFeedSize.call(this);
-				feeds[buffer[0].username].ctx.drawImage(i, 0,0, feeds[buffer[0].username].canvas.width, feeds[buffer[0].username].canvas.height);
-				shift(buffer);
-			}
-			
-			
-			
-			
-		}
-	}	
-	function setFeedSize(){
-			if(this.width && this.height){
-				feeds[buffer[0].username].canvas.width = this.width;
-				feeds[buffer[0].username].canvas.height = this.height;
-			}
+socket.on("recieved_answer", function(data){
+	console.log('received answer');
+	if(!connected) {
+		pc.setRemoteDescription(new RTCSessionDescription(data));
+		connected = true;
 	}
-	function shift(arr){
-		for(var i =0; i<arr.length; i++){
-			arr[i] = arr[i+1]
-		}
-		arr.length = arr.length - 1;
+});
+
+socket.on("received_candidate", function(data){
+	console.log('received candidate');
+	var candidate = new RTCIceCandidate({
+		sdpMLineIndex: data.label,
+		candidate: data.candidate
+	});
+	pc.addIceCandidate(candidate);
+});
+
+
+var pc;
+var online;
+var configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+var stream;
+var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection  ;
+var connected = false;
+var mediaConstraints = {
+  'mandatory': {
+    'OfferToReceiveAudio':true, 
+    'OfferToReceiveVideo':true
+  }
+};
+
+pc = new RTCPeerConnection(configuration);
+pc.onicecandidate = function(e) {
+	if(e.candidate) {
+		socket.emit("received_candidate", {
+			label: e.candidate.sdpMLineIndex,
+			id: e.candidate.sdpMid,
+			candidate: e.candidate.candidate
+		});
 	}
-}(socket))
+};
+
+pc.onaddstream = function(e) {
+  console.log('start remote video stream');
+  vid2.src = webkitURL.createObjectURL(e.stream);
+  vid2.play();
+};
+socket.on("online", function(o){
+	online = o;
+});
+function broadcast() {
+	navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia ;
+  // gets local video stream and renders to vid1
+  navigator.getUserMedia({audio: true, video: true}, function(s) {
+    stream = s;
+    pc.addStream(s);
+    vid1.src = webkitURL.createObjectURL(s);
+    vid1.play();
+    // initCall is set in views/index and is based on if there is another person in the room to connect to
+    if(online.total > 1)
+      start();
+  	console.log(online.total);
+  }, function(){});
+}
+
+function start() {
+  // this initializes the peer connection
+  pc.createOffer(function(description) {
+    pc.setLocalDescription(description, function(){
+    	socket.emit(
+    	  'received_offer',
+    	  description
+    	);
+    });
+   
+  }, null, mediaConstraints);
+}
+
+window.onload = function() {
+  broadcast();
+};
+
+}(socket));
  

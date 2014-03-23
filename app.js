@@ -26,12 +26,13 @@ app.get("/", function(req, res){
 	res.render("index.html");
 });
 (function(socket, client){
-
+	var count = 0;
 	var online = {};
 	var privateOnline = {};
 
 	socket.sockets.on("connection", function(s){
 		s.set("index", online.length);
+		count++;
 		client.lrange("messages", 0, 50, function(err, list){
 			var li = [];
 			list.forEach(function(l){
@@ -65,25 +66,36 @@ app.get("/", function(req, res){
 			privateOnline[username] = s.id;
 			s.set("username", username);
 			
-			socket.sockets.emit("online", online);
+			socket.sockets.emit("online", {total:count, online:online});
 		});
 		s.on("disconnect", function(){
+			count--;
 			s.get("username", function(err, username){
 				if(username){
 					delete online[username];
 					delete privateOnline[username];
-					socket.sockets.emit("online", online);
+					socket.sockets.emit("online", {total:count, online:online});
 					socket.sockets.emit("message", username + " left the room!");
 				}
 			});
 			
 			
 		});
-		s.on("video", function(frame){
-			s.get("username", function(err, username){
-				s.broadcast.emit("video", frame, username);
-			});
-		})
+		s.emit("assigned_id", s.id);
+		s.on("received_offer", function(d){
+			s.broadcast.emit("received_offer", d);
+		});
+		s.on("received_candidate", function(d){
+			s.broadcast.emit("received_candidate", d);
+		});
+		s.on("recieved_answer", function(d){
+			s.broadcast.emit("recieved_answer", d);
+		});
+		function alertEveryone(){
+			//s.broadcast.emit();
+			console.log("message")
+		}
+		
 		s.on("newUsername", function(name){
 			s.get("username", function(err, username){
 				if(online[name] && name !== username){

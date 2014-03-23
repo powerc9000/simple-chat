@@ -150,8 +150,8 @@ var socket = io.connect();
 				function usersOnline(users){
 					var list = document.getElementsByClassName("online")[0];
 					list.innerHTML = "";
-					for(var i in users){
-						if(users.hasOwnProperty(i)){
+					for(var i in users.online){
+						if(users.online.hasOwnProperty(i)){
 							var item = createElement("<li></li>");
 							item.textContent = i;
 							list.appendChild(item);
